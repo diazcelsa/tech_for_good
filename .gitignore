@@ -1,2 +1,7 @@
 .idea*
 *.csv
+.ipynb_checkpoints*
+data/
+.venv
+.DS_Store
+__pycache__/
