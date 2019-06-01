@@ -43,8 +43,8 @@ function draw() {
   image(video, 0, 0, width, height);
 
   // We can call both functions to draw all keypoints and the skeletons
-//  drawKeypoints();
-//  drawSkeleton();
+  drawKeypoints();
+  drawSkeleton();
   getPoses(poses);
 }
 
@@ -84,11 +84,46 @@ function drawSkeleton() {
 
 // A function to draw special stuff
 function getPoses(poses) {
-    if (poses.length > 0) {
-        let newX = poses[0].pose.keypoints[2].position.x
-        let newY = poses[0].pose.keypoints[2].position.y
-        fill(255, 3, 0);
+    for (let i = 0; i < poses.length; i++) {
+
+        // DISPLAY EYES
+        // Black around eyes
+        let newX = poses[i].pose.keypoints[1].position.x
+        let newY = poses[i].pose.keypoints[1].position.y
+        fill(0, 0, 0);
         noStroke();
-        ellipse(newX, newY, 30, 30);
+        ellipse(newX + 5, newY, 50, 50);
+
+        let newX2 = poses[i].pose.keypoints[2].position.x
+        let newY2 = poses[i].pose.keypoints[2].position.y
+        fill(0, 0, 0);
+        noStroke();
+        ellipse(newX2 - 5, newY2, 50, 50);
+
+        // White of the eyes
+        let newX3 = poses[i].pose.keypoints[1].position.x
+        let newY3 = poses[i].pose.keypoints[1].position.y
+        fill(255, 255, 255);
+        noStroke();
+        ellipse(newX3 + 5, newY3, 45, 45);
+
+        let newX4 = poses[i].pose.keypoints[2].position.x
+        let newY4 = poses[i].pose.keypoints[2].position.y
+        fill(255, 255, 255);
+        noStroke();
+        ellipse(newX4 - 5, newY4, 49, 49);
+
+        // Black inside of the eyes
+        let newX5 = poses[i].pose.keypoints[1].position.x
+        let newY5 = poses[i].pose.keypoints[1].position.y
+        fill(0, 0, 0);
+        noStroke();
+        ellipse(newX5 - 3 - 5, newY5 - 1, 15, 15);
+
+        let newX6 = poses[i].pose.keypoints[2].position.x
+        let newY6 = poses[i].pose.keypoints[2].position.y
+        fill(0, 0, 0);
+        noStroke();
+        ellipse(newX6 + 1 + 5, newY6 + 3, 23, 23);
     }
 }
