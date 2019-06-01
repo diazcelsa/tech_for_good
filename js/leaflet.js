@@ -1,42 +1,42 @@
-// CONNECT TO MY RESTDB.IO DATABASE TO QUERY HISTORICAL DATAPOINTS
+// SETTINGS OF MY RESTDB.IO DATABASE TO QUERY HISTORICAL DATAPOINTS
 var settings = {
   "async": true,
   "crossDomain": true,
-  // ADD PATH TO MY DATABASE
-  "url": "http://leafletbiz-e47f.restdb.io/rest/data-leaflet",
+
+  // DATABASE URL
+  "url": "https://leafletbiz-e47f.restdb.io/rest/data-leaflet",
   "method": "GET",
   "headers": {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST,GET,PUT",
-    "Access-Control-Allow-Headers": "Authorization, Lang",
     "content-type": "application/json",
-    // ADD MY KEY
-    "x-apikey": "e71b1800a434f84bad328c27ffb3044e28930",
+
+    // CORS key
+    "x-apikey": "5cf13909fd4a015b5eafec5d",
+
     "cache-control": "no-cache"
   }
 }
 
-$.ajax(settings).done(function (response) {
-  console.log(response);
-});
+// PRINT ANSWER FROM DB IN THE CONSOLE
+//$.ajax(settings).done(function (response) {
+//  console.log(response);
+//});
 
 var cities = L.layerGroup();
 
-// GET HISTORICAL LAT/LONG/EVENT FROM DATABASE
-//const postEvents = (response) => {
-//    var i;
-//    for (i = 0; i < response.length; i++) {
-//
-//      L.marker([response[i].latitude, response[i].longitude]).bindPopup(response[i].event).addTo(cities)
-//
-//}
-////  }
-//};
+// EXTRACT HISTORICAL LAT/LONG/EVENT INFO FROM RESPONSE
+var postEvents = (response) => {
 
-//L.marker([41.3858903,2.1646433]).bindPopup('ImaginCafé').addTo(cities),
-//L.marker([41.3862262,2.1731545]).bindPopup('allWomen').addTo(cities),
-//L.marker([41.39899,2.2027963]).bindPopup('Coworking Poblenou').addTo(cities),
-//L.marker([41.3996779,2.171314]).bindPopup('MOB Coworking').addTo(cities);
+    // SHOW IN THE CONSOLE THE RESPONSE
+    console.log(response);
+
+    var i;
+    for (i = 0; i < response.length; i++) {
+      L.marker([response[i].latitude, response[i].longitude]).bindPopup(response[i].event).addTo(cities)
+    }
+};
+
+// CALL THE DATABASE AND EXTRACT ALL CONTENT FROM TABLE
+$.ajax(settings).done(postEvents);
 
 
 var mbAttr = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
@@ -47,54 +47,64 @@ var mbAttr = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStree
 var grayscale   = L.tileLayer(mbUrl, {id: 'mapbox.light', attribution: mbAttr}),
     streets  = L.tileLayer(mbUrl, {id: 'mapbox.streets',   attribution: mbAttr});
 
+// FIX THE CENTER OF THE MAP
 var map = L.map('map', {
     center: [41.3959241, 2.1539785],
     zoom: 12,
     layers: [streets, cities]
 });
 
-//var Marker = L.marker([41.3858903,2.1546533]).on('dbclick', onClick).addTo(map)
-//
-//// Create new markers from users interactions
-//function onClick(e) {
-//    alert(this.getLatLng());
-//}
-//L.DomEvent.addListener(marker.label, 'dbclick', function(e) { this.togglePopup() }, marker);
 
-
-
+// ADD NEW MARKERS
 map.on('click', function(e){
-    var marker = new L.marker(e.latlng).addTo(cities);
 
     // Extract latitude and longitude from selection
-    var latitude = marker.latitude
-    var longitude = marker.longitude
+    var latitude = e.latlng['lat']
+    var longitude = e.latlng['lng']
+    console.log(e)
 
-//    // Create the JSON from marker to send to the database
-//    var jsondata = {
-//      "event":
-//      "latitude": latitude,
-//      "lontigude": longitude
-//    };
-//
-//    // Send data to the database
-//    var settings = {
-//      "async": true,
-//      "crossDomain": true,
-//      "url": "https://leafletbiz-e47f.restdb.io/rest/data-leaflet",
-//      "method": "POST",
-//      "headers": {
-//        "content-type": "application/json",
-//        "x-apikey": "e71b1800a434f84bad328c27ffb3044e28930",
-//        "cache-control": "no-cache"
-//      },
-//      "processData": false,
-//      "data": JSON.stringify(jsondata)
-//    }
-//
-//    $.ajax(settings).done(function (response) {
-//      console.log(response);
-//    });
+    // Extract the label of the event from the text box with id=label
+    var label = $("#label").val()
+    if (label == "Default") {
+        window.alert("Label the event!")
+    }
+    else {
+
+        // Show labeled marker
+        var marker = new L.marker(e.latlng).bindPopup(label).addTo(cities);
+
+        // Create the JSON from marker to send to the database
+        var jsondata = {
+                        "event": label,
+                        "latitude": latitude,
+                        "longitude": longitude
+                        };
+
+        var settings = {
+          "async": true,
+          "crossDomain": true,
+
+          // URL TO THE DATABASE
+          "url": "https://leafletbiz-e47f.restdb.io/rest/data-leaflet",
+
+          "method": "POST",
+          "headers": {
+            "content-type": "application/json",
+            "x-apikey": "5cf13909fd4a015b5eafec5d",
+            "cache-control": "no-cache"
+          },
+          "processData": false,
+          "data": JSON.stringify(jsondata)
+        }
+
+        // POST RESPONSE INTO MY DB
+        $.ajax(settings).done(function (response) {
+          console.log(response);
+        });
+
+        $("#label").val('Default')
+
+    };
 });
 
 var baseLayers = {
